@@ -1,14 +1,13 @@
 using Microsoft.OpenApi.Models;
+using TechLibrary.Api.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
 const string AUTHENTICATION_TYPE = "Bearer";
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition(AUTHENTICATION_TYPE, new OpenApiSecurityScheme
@@ -40,6 +39,8 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
 var app = builder.Build();
 
