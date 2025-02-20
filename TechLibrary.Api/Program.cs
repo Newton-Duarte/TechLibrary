@@ -7,9 +7,6 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddSwaggerGen();
-
-
 const string AUTHENTICATION_TYPE = "Bearer";
 
 builder.Services.AddSwaggerGen(options =>
