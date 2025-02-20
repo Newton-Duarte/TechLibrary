@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechLibrary.Api.Domain.Entities;
 
-namespace TechLibrary.Api.Infra;
+namespace TechLibrary.Api.Infra.DataAccess;
 
 public class TechLibraryDbContext : DbContext
 {
