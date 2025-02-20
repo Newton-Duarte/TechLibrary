@@ -1,4 +1,5 @@
-﻿using TechLibrary.Api.Domain.Entities;
+﻿using FluentValidation.Results;
+using TechLibrary.Api.Domain.Entities;
 using TechLibrary.Api.Infra.DataAccess;
 using TechLibrary.Api.Infra.Security.Cryptography;
 using TechLibrary.Communication.Requests;
@@ -11,9 +12,12 @@ public class RegisterUserUseCase
 {
     public ResponseUserJson Execute(RequestUserJson request)
     {
-        Validate(request);
+        var dbContext = new TechLibraryDbContext();
+
+        Validate(request, dbContext);
 
         var cryptography = new BCryptAlgorithm();
+
         var entity = new User
         {
             Name = request.Name,
@@ -21,7 +25,7 @@ public class RegisterUserUseCase
             Password = cryptography.HashPassword(request.Password),
         };
 
-        var dbContext = new TechLibraryDbContext();
+        
         dbContext.Users.Add(entity);
         dbContext.SaveChanges();
 
@@ -31,10 +35,16 @@ public class RegisterUserUseCase
         };
     }
 
-    private void Validate(RequestUserJson request)
+    private void Validate(RequestUserJson request, TechLibraryDbContext dbContext)
     {
         var validator = new RegisterUserValidator();
         var result = validator.Validate(request);
+
+        var userWithSameEmail = dbContext.Users.Any(user => user.Email == request.Email);
+        if (userWithSameEmail)
+        {
+            result.Errors.Add(new ValidationFailure("Email", "E-mail já cadastrado."));
+        }
 
         if (!result.IsValid)
         {
