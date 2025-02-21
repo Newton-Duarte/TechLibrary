@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using TechLibrary.Api.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +46,19 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = SecurityKey(),
+        };
+    });
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -58,3 +75,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+SymmetricSecurityKey SecurityKey()
+{
+    var signingKey = "OMgkb6glnxjGd8j8W7wSN9IHphXG5pjA";
+
+    var symmetricKey = Encoding.UTF8.GetBytes(signingKey);
+
+    return new SymmetricSecurityKey(symmetricKey);
+}
